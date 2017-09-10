@@ -297,6 +297,81 @@
   }
 
 
+/*  Custom function to dump strong points only to stdout
+    Supports strong point analysis in ftgrid */
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
+  void
+  af_glyph_hints_dump_strong_points( AF_GlyphHints  hints,
+                              FT_Bool        to_stdout )
+  {
+    AF_Point   points  = hints->points;
+    AF_Point   limit   = points + hints->num_points;
+    AF_Point*  contour = hints->contours;
+    AF_Point*  climit  = contour + hints->num_contours;
+    AF_Point   point;
+
+
+    AF_DUMP(( "Table of strong points:\n" ));
+
+    if ( hints->num_points )
+      AF_DUMP(( "  index  hedge  hseg  vedge  vseg  flags "
+                "  xorg  yorg  xscale  yscale   xfit    yfit" ));
+    else
+      AF_DUMP(( "  (none)\n" ));
+
+    for ( point = points; point < limit; point++ )
+    {
+      // only dump strong points in this function
+      if ( !(point->flags & AF_FLAG_WEAK_INTERPOLATION) )
+      {
+        int  point_idx     = AF_INDEX_NUM( point, points );
+        int  segment_idx_0 = af_get_segment_index( hints, point_idx, 0 );
+        int  segment_idx_1 = af_get_segment_index( hints, point_idx, 1 );
+
+        char  buf1[16], buf2[16], buf3[16], buf4[16];
+
+
+        /* insert extra newline at the beginning of a contour */
+        if ( contour < climit && *contour == point )
+        {
+          AF_DUMP(( "\n" ));
+          contour++;
+        }
+
+        AF_DUMP(( "  %5d  %5s %5s  %5s %5s  %s"
+                  " %5d %5d %7.2f %7.2f %7.2f %7.2f\n",
+                  point_idx,
+                  af_print_idx( buf1,
+                                af_get_edge_index( hints, segment_idx_1, 1 ) ),
+                  af_print_idx( buf2, segment_idx_1 ),
+                  af_print_idx( buf3,
+                                af_get_edge_index( hints, segment_idx_0, 0 ) ),
+                  af_print_idx( buf4, segment_idx_0 ),
+                  ( point->flags & AF_FLAG_NEAR )
+                    ? " near "
+                    : ( point->flags & AF_FLAG_WEAK_INTERPOLATION )
+                      ? " weak "
+                      : "strong",
+
+                  point->fx,
+                  point->fy,
+                  point->ox / 64.0,
+                  point->oy / 64.0,
+                  point->x / 64.0,
+                  point->y / 64.0 ));
+      }
+    }
+    AF_DUMP(( "\n" ));
+  }
+#ifdef __cplusplus
+  }
+#endif
+
+
+
 #ifdef __cplusplus
   extern "C" {
 #endif
