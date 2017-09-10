@@ -324,7 +324,7 @@
 
     for ( point = points; point < limit; point++ )
     {
-      // only dump strong points in this function
+      /* only dump strong points in this function */
       if ( !(point->flags & AF_FLAG_WEAK_INTERPOLATION) )
       {
         int  point_idx     = AF_INDEX_NUM( point, points );
