@@ -318,7 +318,7 @@
 
     if ( hints->num_points )
       AF_DUMP(( "  index  hedge  hseg  vedge  vseg  flags "
-                "  xorg  yorg  xscale  yscale   xfit    yfit" ));
+                "  xorg  yorg  xscale  yscale   xfit    yfit\n" ));
     else
       AF_DUMP(( "  (none)\n" ));
 
